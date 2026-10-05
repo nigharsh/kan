@@ -13037,17 +13037,5 @@
       ]
     ],
     "translation": "YouTube URL"
-  },
-  "lQ42so": {
-    "translation": "Card title cannot be empty.",
-    "message": "Card title cannot be empty.",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/views/card/index.tsx",
-        279
-      ]
-    ]
   }
 }
