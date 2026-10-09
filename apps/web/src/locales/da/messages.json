@@ -12877,5 +12877,17 @@
       ]
     ],
     "translation": "YouTube-URL"
+  },
+  "lQ42so": {
+    "translation": "Kortets titel må ikke være tom.",
+    "message": "Card title cannot be empty.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/index.tsx",
+        279
+      ]
+    ]
   }
 }
