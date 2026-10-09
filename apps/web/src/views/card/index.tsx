@@ -271,9 +271,20 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
   });
 
   const onSubmit = (values: FormValues) => {
+    const title = values.title.trim();
+    if (!title) {
+      setValue("title", card?.title ?? "");
+      showPopup({
+        header: t`Unable to update card`,
+        message: t`Card title cannot be empty.`,
+        icon: "error",
+      });
+      return;
+    }
+
     updateCard.mutate({
       cardPublicId: values.cardId,
-      title: values.title,
+      title,
       description: values.description,
     });
   };

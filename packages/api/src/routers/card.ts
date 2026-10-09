@@ -49,7 +49,7 @@ export const cardRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        title: z.string().min(1).max(2000),
+        title: z.string().trim().min(1).max(2000),
         description: z.string().max(10000),
         listPublicId: z.string().min(12),
         labelPublicIds: z.array(z.string().min(12)),
@@ -864,7 +864,7 @@ export const cardRouter = createTRPCRouter({
     .input(
       z.object({
         cardPublicId: z.string().min(12),
-        title: z.string().min(1).max(2000).optional(),
+        title: z.string().trim().min(1).max(2000).optional(),
         description: z.string().optional(),
         index: z.number().optional(),
         listPublicId: z.string().min(12).optional(),
@@ -1234,7 +1234,7 @@ export const cardRouter = createTRPCRouter({
         cardPublicId: z.string().min(12),
         listPublicId: z.string().min(12),
         index: z.number().int().min(0).optional(),
-        title: z.string().min(1).max(2000).optional(),
+        title: z.string().trim().min(1).max(2000).optional(),
         copyLabels: z.boolean(),
         copyMembers: z.boolean(),
         copyChecklists: z.boolean(),
