@@ -7710,5 +7710,17 @@
     "comments": [],
     "origin": [["src/components/YouTubeEmbed/EditYouTubeModal.tsx", 147]],
     "translation": "URL de YouTube"
+  },
+  "lQ42so": {
+    "translation": "El título de la tarjeta no puede estar vacío.",
+    "message": "Card title cannot be empty.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/views/card/index.tsx",
+        279
+      ]
+    ]
   }
 }
