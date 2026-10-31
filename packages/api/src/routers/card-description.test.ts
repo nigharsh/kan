@@ -9,6 +9,7 @@ import {
   createCardWebhookPayload,
   sendWebhooksForWorkspace,
 } from "../utils/webhook";
+import { cardRouter } from "./card";
 
 vi.mock("@kan/db/repository/card.repo", () => ({
   getWorkspaceAndCardIdByCardPublicId: vi.fn(),
@@ -33,82 +34,86 @@ vi.mock("../utils/webhook", () => ({
 }));
 
 describe("card description updates", () => {
-  it("stores an empty editor document as null", async () => {
-    const mockDb = {} as never;
-    const cardPublicId = "card-12345678";
-    const ctx = {
-      user: {
-        id: "user-123",
-        name: "Test User",
-        email: "test@example.com",
-      },
-      db: mockDb,
-    } as never;
-
-    vi.mocked(assertCanEdit).mockResolvedValue(undefined);
-    vi.mocked(cardRepo.getWorkspaceAndCardIdByCardPublicId).mockResolvedValue({
-      id: 1,
-      createdBy: "user-123",
-      workspaceId: 2,
-      workspaceVisibility: "private",
-      listPublicId: "list-12345678",
-      listName: "Todo",
-      boardPublicId: "board-1234567",
-      boardName: "Board",
-    });
-    vi.mocked(cardRepo.getByPublicId).mockResolvedValue({
-      id: 1,
-      publicId: cardPublicId,
-      title: "Card",
-      description: "<p>Existing description</p>",
-      listId: 3,
-      dueDate: null,
-      list: {
-        publicId: "list-12345678",
-        name: "Todo",
-      },
-    });
-    vi.mocked(cardRepo.update).mockResolvedValue({
-      id: 1,
-      publicId: cardPublicId,
-      title: "Card",
-      description: null,
-      dueDate: null,
-    });
-    vi.mocked(cardActivityRepo.bulkCreate).mockResolvedValue([]);
-    vi.mocked(sendWebhooksForWorkspace).mockResolvedValue(undefined);
-
-    const { cardRouter } = await import("./card");
-
-    await cardRouter.createCaller(ctx).update({
-      cardPublicId,
-      description: "<p></p>",
-    });
-
-    expect(cardRepo.update).toHaveBeenCalledWith(
-      mockDb,
-      { description: null },
-      { cardPublicId },
-    );
-    expect(cardActivityRepo.bulkCreate).toHaveBeenCalledWith(mockDb, [
-      expect.objectContaining({
-        type: "card.updated.description",
-        fromDescription: "<p>Existing description</p>",
-        toDescription: undefined,
-      }),
-    ]);
-    expect(sendMentionEmails).not.toHaveBeenCalled();
-    expect(createCardWebhookPayload).toHaveBeenCalledWith(
-      "card.updated",
-      expect.objectContaining({ description: null }),
-      expect.objectContaining({
-        changes: {
-          description: {
-            from: "<p>Existing description</p>",
-            to: null,
-          },
+  it.each([undefined, "  Card  "])(
+    "stores an empty description and normalizes optional title %j",
+    async (title) => {
+      const mockDb = {} as never;
+      const cardPublicId = "card-12345678";
+      const ctx = {
+        user: {
+          id: "user-123",
+          name: "Test User",
+          email: "test@example.com",
         },
-      }),
-    );
-  });
+        db: mockDb,
+      } as never;
+
+      vi.mocked(assertCanEdit).mockResolvedValue(undefined);
+      vi.mocked(cardRepo.getWorkspaceAndCardIdByCardPublicId).mockResolvedValue(
+        {
+          id: 1,
+          createdBy: "user-123",
+          workspaceId: 2,
+          workspaceVisibility: "private",
+          listPublicId: "list-12345678",
+          listName: "Todo",
+          boardPublicId: "board-1234567",
+          boardName: "Board",
+        },
+      );
+      vi.mocked(cardRepo.getByPublicId).mockResolvedValue({
+        id: 1,
+        publicId: cardPublicId,
+        title: "Card",
+        description: "<p>Existing description</p>",
+        listId: 3,
+        dueDate: null,
+        list: {
+          publicId: "list-12345678",
+          name: "Todo",
+        },
+      });
+      vi.mocked(cardRepo.update).mockResolvedValue({
+        id: 1,
+        publicId: cardPublicId,
+        title: "Card",
+        description: null,
+        dueDate: null,
+      });
+      vi.mocked(cardActivityRepo.bulkCreate).mockResolvedValue([]);
+      vi.mocked(sendWebhooksForWorkspace).mockResolvedValue(undefined);
+
+      await cardRouter.createCaller(ctx).update({
+        cardPublicId,
+        description: "<p></p>",
+        ...(title !== undefined && { title }),
+      });
+
+      expect(cardRepo.update).toHaveBeenCalledWith(
+        mockDb,
+        { description: null, ...(title !== undefined && { title: "Card" }) },
+        { cardPublicId },
+      );
+      expect(cardActivityRepo.bulkCreate).toHaveBeenCalledWith(mockDb, [
+        expect.objectContaining({
+          type: "card.updated.description",
+          fromDescription: "<p>Existing description</p>",
+          toDescription: undefined,
+        }),
+      ]);
+      expect(sendMentionEmails).not.toHaveBeenCalled();
+      expect(createCardWebhookPayload).toHaveBeenCalledWith(
+        "card.updated",
+        expect.objectContaining({ description: null }),
+        expect.objectContaining({
+          changes: {
+            description: {
+              from: "<p>Existing description</p>",
+              to: null,
+            },
+          },
+        }),
+      );
+    },
+  );
 });

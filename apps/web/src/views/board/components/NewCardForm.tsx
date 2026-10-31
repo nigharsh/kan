@@ -300,13 +300,15 @@ export function NewCardForm({
   };
 
   const onSubmit = async (data: NewCardFormInput) => {
+    if (!data.title.trim()) return;
+
     const filesToUpload = pendingFiles;
     setPendingFiles([]);
 
     let newCard;
     try {
       newCard = await createCard.mutateAsync({
-        title: data.title,
+        title: data.title.trim(),
         description: data.description,
         listPublicId: data.listPublicId,
         labelPublicIds: data.labelPublicIds,
@@ -321,7 +323,10 @@ export function NewCardForm({
     }
 
     if (filesToUpload.length > 0) {
-      const failedCount = await uploadAttachments(newCard.publicId, filesToUpload);
+      const failedCount = await uploadAttachments(
+        newCard.publicId,
+        filesToUpload,
+      );
       if (failedCount > 0) {
         showPopup({
           header: t`Some attachments failed`,
@@ -658,7 +663,7 @@ export function NewCardForm({
         <div>
           <Button
             type="submit"
-            disabled={title.length === 0 || createCard.isPending}
+            disabled={title.trim().length === 0 || createCard.isPending}
           >
             {t`Create card`}
           </Button>
