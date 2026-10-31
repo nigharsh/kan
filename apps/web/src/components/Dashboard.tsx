@@ -152,7 +152,7 @@ export default function Dashboard({
 
   useEffect(() => {
     const isCredentialsEnabled =
-      env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() === "true";
+      env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() !== "false";
 
     if (
       !userLoading &&

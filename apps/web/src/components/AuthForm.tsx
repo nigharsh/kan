@@ -175,7 +175,7 @@ export function Auth({
   // Safely get environment variables on client side to avoid hydration mismatch
   useEffect(() => {
     const credentialsAllowed =
-      env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() === "true";
+      env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() !== "false";
     const emailSendingEnabled =
       env("NEXT_PUBLIC_DISABLE_EMAIL")?.toLowerCase() !== "true";
     const isCloudEnv = env("NEXT_PUBLIC_KAN_ENV") === "cloud";
