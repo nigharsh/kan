@@ -51,9 +51,14 @@ jobs:
               batch = get(base+'/files?per_page=100&page='+str(page))
               files.extend(batch)
               if len(batch) < 100:break
+          latest = get(base)
+          if latest['head']['sha'] != pr['head']['sha'] or latest['base']['sha'] != pr['base']['sha']:
+              raise SystemExit('PR changed while reading files; prepare a fresh request')
           Path('pr.json').write_text(json.dumps(pr))
           Path('changed-files.json').write_text(json.dumps(files))
           PY
+      - name: Check request mapping
+        run: python3 -m unittest discover -s .github -p 'test_contextqa_docs_request.py'
       - name: Prepare the documentation capture request
         run: python3 .github/contextqa_docs_request.py --pr pr.json --files changed-files.json --out docs-refresh-request.json
       - name: Explain the result

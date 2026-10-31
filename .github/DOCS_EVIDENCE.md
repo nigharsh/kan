@@ -2,7 +2,7 @@
 
 `docs-evidence.yml` runs on opened/updated/reopened/ready pull requests. A manual dispatch can inspect an existing PR number after this workflow is on the default branch.
 
-The workflow reads the current PR head and the complete changed-file list, then uploads `docs-refresh-request.json`. It maps board/card/checklist changes to documentation workflows and records the requested ContextQA Max runner. No ContextQA token or Kan login is stored in GitHub for this request-only stage.
+The workflow reads the current PR head and the complete changed-file list, then uploads `docs-refresh-request.json`. It maps board/list/card/checklist changes to documentation workflows and records the requested ContextQA Max runner. No ContextQA token or Kan login is stored in GitHub for this request-only stage.
 
 A successful GitHub check means **the capture request was prepared**, not that documentation was generated or verified. The workflow does not execute ContextQA, publish screenshots, start a paid run or change a test environment. Fork PRs receive no ContextQA credentials.
 
@@ -19,3 +19,7 @@ The mapper is copied from `contextqa-docs-evidence/integrations/kan/docs_request
 ## Observed check
 
 PR #18 at `a0d0587a5f1fe13c0c132e235c6c7148825c2fe5` mapped to `kan-create-card` and `kan-checklist`. This was a local request-generation check against live GitHub metadata, not a deployment or capture claim.
+
+## Request integrity
+
+Duplicate current paths are rejected even when their count matches GitHub metadata. The workflow rereads head/base after fetching paths and fails on drift. A supplied matching deployment SHA is only operator input: `deployment_verified` remains false until separate target-bound evidence is obtained. Twelve local mapper regression tests pass; full lint/typecheck were attempted but blocked by pnpm 11.25.0 versus required ^9.14.2.
