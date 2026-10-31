@@ -35,7 +35,7 @@ export const initAuth = (db: dbClient) => {
       ? { rateLimit: { enabled: false } }
       : {}),
     emailAndPassword: {
-      enabled: env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() === "true",
+      enabled: env("NEXT_PUBLIC_ALLOW_CREDENTIALS")?.toLowerCase() !== "false",
       // Sign-up restriction is handled by the user.create.before database
       // hook which checks for pending invitations, allowing invited users
       // to register even when public sign-up is disabled.
